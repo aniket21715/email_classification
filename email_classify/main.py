@@ -1,5 +1,6 @@
 import uvicorn
 import logging
+from src.app import app as api  # Expose FastAPI app as 'api' for Hugging Face Spaces
 
 # Configure logging
 logging.basicConfig(
@@ -8,12 +9,9 @@ logging.basicConfig(
 )
 
 if __name__ == "__main__":
-    # Import here to avoid circular imports
-    from src.app import app
-    
     uvicorn.run(
-        app, 
-        host="0.0.0.0", 
+        api,        
+        host="localhost", 
         port=8000,
         log_level="info"
     )
