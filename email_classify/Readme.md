@@ -28,8 +28,8 @@ The system consists of the following components:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/email-classification-system.git
-   cd email-classification-system
+   git clone https://github.com/yourusername/email_classify.git
+   cd email_classify
    ```
 
 2. Create a virtual environment:
@@ -58,10 +58,10 @@ By default, if no data file is specified, the script will generate sample data f
 Start the API server locally:
 
 ```
-python src/app.py
+python main.py
 ```
 
-The API will be accessible at `http://localhost:7860`.
+The API will be accessible at `http://localhost:8000`.
 
 ## API Usage
 
@@ -99,43 +99,6 @@ The API will be accessible at `http://localhost:7860`.
 }
 ```
 
-## Deploying to Hugging Face Spaces
-
-### Option 1: Manual Deployment
-
-1. Create a new Space on Hugging Face Spaces (https://huggingface.co/spaces)
-2. Choose "Docker" as the Space type
-3. Upload all files from this repository to the Space
-4. The Dockerfile included in this repository will automatically set up and run the API
-
-### Option 2: Using the Hugging Face CLI
-
-1. Install the Hugging Face CLI: `pip install huggingface_hub`
-2. Login to Hugging Face: `huggingface-cli login`
-3. Create a new Space:
-   ```
-   huggingface-cli repo create email-classification-system --type space --organization your-org
-   ```
-4. Clone the empty Space:
-   ```
-   git clone https://huggingface.co/spaces/your-org/email-classification-system
-   cd email-classification-system
-   ```
-5. Copy all files from this repository to the cloned directory
-6. Push the files to Hugging Face:
-   ```
-   git add .
-   git commit -m "Initial deployment"
-   git push
-   ```
-
-### Verifying the Deployment
-
-After deployment, your API will be available at:
-`https://huggingface.co/spaces/your-org/email-classification-system`
-
-You can interact with the API using the automatically generated Swagger UI at:
-`https://huggingface.co/spaces/your-org/email-classification-system/docs`
 
 ## Directory Structure
 
@@ -151,7 +114,7 @@ email_classification_system/
 │   ├── data_processor.py # Data processing utilities
 │   ├── train_model.py   # Training script
 │   └── app.py           # API server
-├── app.py               # Main application entry point for Hugging Face Spaces
+├── main.py               # Main application entry point for Hugging Face Spaces
 ├── Dockerfile           # Docker configuration for deployment
 ├── requirements.txt     # Project dependencies
 └── README.md            # Project documentation
