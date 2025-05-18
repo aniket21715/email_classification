@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Classification System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+        .result h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        .result-section {
+            margin-bottom: 20px;
+        }
+        .result-section h3 {
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .category-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #28a745;
+            color: white;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .probability-bar {
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+        .probability-fill {
+            height: 100%;
+            background-color: #007bff;
+            transition: width 0.3s ease;
+        }
+        .probability-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #555;
+        }
+        .entity-item {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 3px;
+            padding: 8px;
+            margin-bottom: 5px;
+        }
+        .entity-type {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .error {
+            color: #dc3545;
+            padding: 10px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .loading {
+            display: none;
+            color: #007bff;
+            margin-top: 10px;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Support Email Classification System</h1>
+        
+        <div class="form-group">
+            <label for="email_body">Email Content:</label>
+            <textarea id="email_body" rows="10" placeholder="Paste your support email here...&#10;&#10;Example:&#10;Hi, I'm having trouble logging into my account. My email is john.doe@email.com and my phone number is 555-123-4567. Can you help me reset my password?"></textarea>
+        </div>
+        
+        <button onclick="classifyEmail()" id="classifyBtn">Classify Email</button>
+        
+        <div class="loading" id="loading">
+            Processing email... Please wait.
+        </div>
+        
+        <div id="result" class="result" style="display: none;">
+            <h2>Classification Results</h2>
+            
+            <div class="result-section">
+                <h3>Predicted Category:</h3>
+                <div id="category"></div>
+            </div>
+
+            <div class="result-section">
+                <h3>Prediction Confidence:</h3>
+                <div id="probabilities"></div>
+            </div>
+            
+            <div class="result-section">
+                <h3>Detected PII Entities:</h3>
+                <div id="entities"></div>
+            </div>
+            
+            <div class="result-section">
+                <h3>Masked Email:</h3>
+                <pre id="masked_email"></pre>
+            </div>
+            
+            <div class="result-section">
+                <h3>Raw Response:</h3>
+                <pre id="raw_response"></pre>
+            </div>
+        </div>
+        
+        <div id="error" class="error" style="display: none;"></div>
+    </div>
+
+    <script>
+        async function classifyEmail() {
+            const emailBody = document.getElementById('email_body').value.trim();
+            const classifyBtn = document.getElementById('classifyBtn');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            const error = document.getElementById('error');
+            
+            // Clear previous results
+            result.style.display = 'none';
+            error.style.display = 'none';
+            
+            // Validate input
+            if (!emailBody) {
+                showError('Please enter an email to classify.');
+                return;
+            }
+            
+            // Show loading state
+            classifyBtn.disabled = true;
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch('/classify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        input_email_body: emailBody
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                displayResults(data);
+                
+            } catch (err) {
+                showError(`Classification failed: ${err.message}`);
+            } finally {
+                classifyBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+        
+        function displayResults(data) {
+            // Show category
+            const categoryElement = document.getElementById('category');
+            categoryElement.innerHTML = `<span class="category-badge">${data.category_of_the_email}</span>`;
+            
+            // Show prediction probabilities if available
+            const probabilitiesElement = document.getElementById('probabilities');
+            if (data.prediction_probabilities && Object.keys(data.prediction_probabilities).length > 0) {
+                let probabilitiesHtml = '';
+                Object.entries(data.prediction_probabilities)
+                    .sort((a, b) => b[1] - a[1])  // Sort by probability descending
+                    .forEach(([category, prob]) => {
+                        const percentage = (prob * 100).toFixed(1);
+                        probabilitiesHtml += `
+                            <div class="probability-label">
+                                <span>${category}</span>
+                                <span>${percentage}%</span>
+                            </div>
+                            <div class="probability-bar">
+                                <div class="probability-fill" style="width: ${percentage}%"></div>
+                            </div>
+                        `;
+                    });
+                probabilitiesElement.innerHTML = probabilitiesHtml;
+            } else {
+                probabilitiesElement.innerHTML = '<p>No confidence scores available.</p>';
+            }
+            
+            // Show entities
+            const entitiesElement = document.getElementById('entities');
+            if (data.list_of_masked_entities && data.list_of_masked_entities.length > 0) {
+                let entitiesHtml = '';
+                data.list_of_masked_entities.forEach(entity => {
+                    entitiesHtml += `
+                        <div class="entity-item">
+                            <span class="entity-type">${entity.classification}:</span> 
+                            "${entity.entity}" at position [${entity.position[0]}, ${entity.position[1]}]
+                        </div>
+                    `;
+                });
+                entitiesElement.innerHTML = entitiesHtml;
+            } else {
+                entitiesElement.innerHTML = '<p>No PII entities detected.</p>';
+            }
+            
+            // Show masked email
+            document.getElementById('masked_email').textContent = data.masked_email;
+            
+            // Show raw response
+            document.getElementById('raw_response').textContent = JSON.stringify(data, null, 2);
+            
+            // Show result section
+            document.getElementById('result').style.display = 'block';
+        }
+        
+        function showError(message) {
+            const errorElement = document.getElementById('error');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+        
+        // Allow Enter key to submit (with Ctrl/Cmd)
+        document.getElementById('email_body').addEventListener('keydown', function(event) {
+            if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+                classifyEmail();
+            }
+        });
+    </script>
+</body>
+</html>
