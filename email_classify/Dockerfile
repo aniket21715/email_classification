@@ -21,7 +21,7 @@ RUN mkdir -p data/raw data/processed models
 RUN python src/train_model.py
 
 # Expose the port
-EXPOSE 8000
+EXPOSE 7860
 
 # Command to run the application
-CMD ["python", "-m", "uvicorn", "main:api", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "main:api", "--host", "0.0.0.0", "--port", "7860"]
