@@ -7,8 +7,8 @@ from typing import List, Dict, Optional
 import logging
 import traceback
 import os
-from pii_masker import mask_pii
-from email_classifier import EmailClassifier
+from .pii_masker import mask_pii
+from .email_classifier import EmailClassifier
 
 # Setup logging
 logging.basicConfig(
