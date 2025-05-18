@@ -5,8 +5,8 @@ import logging
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, accuracy_score
-from src.data_processor import load_data
-from src.pii_masker import mask_pii
+from data_processor import load_data
+from pii_masker import mask_pii
 
 # Try to import CatBoost, fallback to sklearn
 try:
