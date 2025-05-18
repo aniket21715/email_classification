@@ -9,7 +9,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install spaCy model
-RUN python -m spacy download en_core_web_md
+RUN python -m spacy download en_core_web_sm
 
 # Copy the rest of the application
 COPY . .
@@ -21,7 +21,7 @@ RUN mkdir -p data/raw data/processed models
 RUN python src/train_model.py
 
 # Expose the port
-EXPOSE 7860
+EXPOSE 8000
 
 # Command to run the application
-CMD ["python", "-m", "uvicorn", "main:api", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["python", "-m", "uvicorn", "main:api", "--host", "0.0.0.0", "--port", "8000"]
