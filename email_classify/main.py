@@ -12,6 +12,6 @@ if __name__ == "__main__":
     uvicorn.run(
         api,        
         host="localhost", 
-        port=8000,
+        port=7860,
         log_level="info"
     )
